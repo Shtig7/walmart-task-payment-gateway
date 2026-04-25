@@ -1,0 +1,21 @@
+name: Create New Microservice
+on:
+  workflow_dispatch:
+    inputs:
+      port_payload:
+        description: 'Port Payload'
+        required: true
+
+jobs:
+  create-service:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log Port Payload
+        run: |
+          echo "Received payload from Port: ${{ github.event.inputs.port_payload }}"
+      
+      - name: Simulate Service Creation
+        run: |
+          echo "Starting automation for Walmart service..."
+          sleep 5
+          echo "Infrastructure provisioned successfully!"
