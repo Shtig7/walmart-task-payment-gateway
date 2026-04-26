@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Log Port Payload
         run: |
-          echo "Received payload from Port: ${{ github.event.inputs.port_payload }}"
+          echo "Received Run ID from Port: ${{ github.event.inputs.port_payload }}"
 
       - name: Simulate Service Creation
         run: |
@@ -20,7 +20,8 @@ jobs:
           sleep 5
           echo "Infrastructure provisioned successfully!"
 
-      - name: Report Status to Port
+      - name: Report Success to Port
+        if: success()
         uses: port-labs/port-github-action@v1
         with:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
@@ -29,3 +30,14 @@ jobs:
           runId: ${{ github.event.inputs.port_payload }}
           status: "SUCCESS"
           logMessage: "Service created successfully! ✅"
+
+      - name: Report Failure to Port
+        if: failure()
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          operation: PATCH_RUN
+          runId: ${{ github.event.inputs.port_payload }}
+          status: "FAILURE"
+          logMessage: "Service creation failed! ❌"
