@@ -33,7 +33,7 @@ jobs:
           sleep 5
           echo "Infrastructure provisioned successfully!"
 
-            - name: Create Entity in Port
+      - name: Create Entity in Port
         uses: port-labs/port-github-action@v1
         with:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
@@ -42,7 +42,7 @@ jobs:
           identifier: ${{ github.event.inputs.service_name }}
           title: ${{ github.event.inputs.service_name }}
           blueprint: service_new
-          properties: |
+          properties: |-
             {
               "language": "${{ github.event.inputs.language }}",
               "criticality": "${{ github.event.inputs.criticality }}",
@@ -50,7 +50,6 @@ jobs:
               "lifecycle": "Development",
               "documentation": "none"
             }
-
 
       - name: Report Success to Port
         if: success()
