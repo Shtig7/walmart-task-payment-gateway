@@ -20,12 +20,13 @@ jobs:
           sleep 5
           echo "Infrastructure provisioned successfully!"
 
-      - name: Report Status to Port
-        uses: port-labs/port-github-action@v1
-        with:
-          clientId: ${{ secrets.PORT_CLIENT_ID }}
-          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
-          operation: PATCH_RUN
-          runId: ${{ fromJson(github.event.inputs.port_payload).runId }}
-          status: "SUCCESS"
-          logMessage: "Service created successfully! ✅"
+     - name: Report Status to Port
+  uses: port-labs/port-github-action@v1
+  with:
+    clientId: ${{ secrets.PORT_CLIENT_ID }}
+    clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+    operation: PATCH_RUN
+    runId: ${{ github.event.inputs.port_payload }}   # 👈 changed this line
+    status: "SUCCESS"
+    logMessage: "Service created successfully! ✅"
+
