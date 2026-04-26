@@ -2,23 +2,53 @@ name: Create New Service
 on:
   workflow_dispatch:
     inputs:
-      port_payload:
-        description: 'Port Payload'
+      run_id:
+        description: 'Port Run ID'
+        required: true
+      service_name:
+        description: 'Service Name'
+        required: true
+      language:
+        description: 'Programming Language'
+        required: true
+      criticality:
+        description: 'Service Criticality'
+        required: true
+      team_owner:
+        description: 'Team Owner'
         required: true
 
 jobs:
   create-service:
     runs-on: ubuntu-latest
     steps:
-      - name: Log Port Payload
+      - name: Log Inputs
         run: |
-          echo "Received Run ID from Port: ${{ github.event.inputs.port_payload }}"
+          echo "Creating service: ${{ github.event.inputs.service_name }}"
+          echo "Port Run ID: ${{ github.event.inputs.run_id }}"
 
       - name: Simulate Service Creation
         run: |
           echo "Starting automation for Walmart service..."
           sleep 5
           echo "Infrastructure provisioned successfully!"
+
+      - name: Create Entity in Port
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          operation: UPSERT
+          identifier: ${{ github.event.inputs.service_name }}
+          blueprint: service_new
+          properties: |
+            {
+              "language": "${{ github.event.inputs.language }}",
+              "criticality": "${{ github.event.inputs.criticality }}",
+              "team_owner": "${{ github.event.inputs.team_owner }}",
+              "lifecycle": "Development",
+              "documentation": "none"
+            }
 
       - name: Report Success to Port
         if: success()
@@ -27,9 +57,9 @@ jobs:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           operation: PATCH_RUN
-          runId: ${{ github.event.inputs.port_payload }}
+          runId: ${{ github.event.inputs.run_id }}
           status: "SUCCESS"
-          logMessage: "Service created successfully! ✅"
+          logMessage: "Service ${{ github.event.inputs.service_name }} created successfully in Port! ✅"
 
       - name: Report Failure to Port
         if: failure()
@@ -38,6 +68,6 @@ jobs:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           operation: PATCH_RUN
-          runId: ${{ github.event.inputs.port_payload }}
+          runId: ${{ github.event.inputs.run_id }}
           status: "FAILURE"
           logMessage: "Service creation failed! ❌"
